@@ -30,6 +30,7 @@ class Bomberman(animate.Animation):
 
         self.direction=4
 
+
     def costume_change(self):
         if self.direction==1:
             self.textures=self.walk_left_frames
@@ -58,7 +59,13 @@ class Game(arcade.Window):
 
         self.solid_blocks = arcade.SpriteList()
         self.explodable_blocks =arcade.SpriteList()
-        self.bomberman=Bomberman()
+
+        self.bomberman = Bomberman()
+        self.bomberman_2 = Bomberman()
+        self.bomberman_2.color = (0, 247, 234)
+
+
+
 
 
     def difference(self, coordinate, distance):
@@ -85,6 +92,9 @@ class Game(arcade.Window):
         y=SCREEN_HEIGHT/ROW_COUNT-CELL_HEIGHT/2
         self.bomberman.set_position(x,y)
 
+        x = SCREEN_WIDTH-ROW_COUNT*2
+        y = SCREEN_HEIGHT-CELL_HEIGHT+ROW_COUNT*3
+        self.bomberman_2.set_position(x, y)
 
 
     def on_draw(self):
@@ -99,12 +109,15 @@ class Game(arcade.Window):
         self.solid_blocks.draw()
         self.explodable_blocks.draw()
         self.bomberman.draw()
+        self.bomberman_2.draw()
+
 
 
 
 
     def update(self, delta_time):
         self.bomberman.update_animation(delta_time)
+        self.bomberman_2.update_animation(delta_time)
 
     def on_key_press(self, key, modifiers):
         if key==arcade.key.LEFT:
@@ -116,6 +129,18 @@ class Game(arcade.Window):
         if key==arcade.key.DOWN:
             self.bomberman.direction=4
         self.bomberman.costume_change()
+
+        if key==arcade.key.A:
+            self.bomberman_2.direction=1
+        if key==arcade.key.D:
+            self.bomberman_2.direction=2
+        if key==arcade.key.W:
+            self.bomberman_2.direction=3
+        if key==arcade.key.S:
+            self.bomberman_2.direction=4
+        self.bomberman_2.costume_change()
+
+
 
 
     def on_key_release(self, key, modifiers):
