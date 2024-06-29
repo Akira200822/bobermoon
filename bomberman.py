@@ -1,5 +1,6 @@
 import arcade
 import animate
+import constants
 
 
 class Bomberman(animate.Animation):
@@ -72,4 +73,16 @@ class Bomberman(animate.Animation):
             self.textures = self.walk_down_frames
 
     def update(self):
-        pass
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        if self.left < 0:
+            self.left = 0
+        if self.right > constants.SCREEN_WIDTH:
+            self.right = constants.SCREEN_WIDTH
+        if self.bottom < 0:
+            self.bottom = 0
+        if self.top > constants.SCREEN_HEIGHT:
+            self.top = constants.SCREEN_HEIGHT
+
+

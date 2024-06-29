@@ -3,7 +3,7 @@ import random
 
 from exp_block import ExplodableBlock
 from solid_block import Solid_block
-from player import Bomberman
+from bomberman import Bomberman
 
 import constants
 
@@ -12,29 +12,26 @@ class Player(Bomberman):
     def __init__(self, speed):
         super().__init__(speed)
 
-    def update(self):
-        self.center_x += self.change_x
-        self.center_y += self.change_y
-
-        if self.left < 0:
-            self.left = 0
-        if self.right > constants.SCREEN_WIDTH:
-            self.right = constants.SCREEN_WIDTH
-        if self.bottom < 0:
-            self.bottom = 0
-        if self.top > constants.SCREEN_HEIGHT:
-            self.top = constants.SCREEN_HEIGHT
-
-        block_hit = arcade.check_for_collision_with_list(self, window.solid_blocks)
+    def collisions(self, spritelist):
+        block_hit = arcade.check_for_collision_with_list(self, spritelist)
         for block in block_hit:
-            if self.left < block.right:
+            if self.left < block.right and self.direction == 1:
                 self.left = block.right
-            if self.right > block.left:
+            if self.right > block.left and self.direction == 2:
                 self.right = block.left
-            if self.top > block.bottom:
+            if self.top > block.bottom and self.direction == 3:
                 self.top = block.bottom
-            if self.bottom < block.top:
+            if self.bottom < block.top and self.direction == 4:
                 self.bottom = block.top
+
+
+    def update(self):
+        super().update()
+        self.collisions(window.explodable_blocks)
+        self.collisions(window.solid_blocks)
+
+
+
 
 
 class Game(arcade.Window):
