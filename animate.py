@@ -1,5 +1,6 @@
 import arcade
 
+
 class Animation(arcade.Sprite):
     frame_index = 0
     time = 0

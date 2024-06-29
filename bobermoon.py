@@ -1,50 +1,93 @@
 import arcade
 import random
 
-import player
 from exp_block import ExplodableBlock
 from solid_block import Solid_block
+from player import Bomberman
 
 import constants
 
+
+class Player(Bomberman):
+    def __init__(self, speed):
+        super().__init__(speed)
+
+    def update(self):
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        if self.left < 0:
+            self.left = 0
+        if self.right > constants.SCREEN_WIDTH:
+            self.right = constants.SCREEN_WIDTH
+        if self.bottom < 0:
+            self.bottom = 0
+        if self.top > constants.SCREEN_HEIGHT:
+            self.top = constants.SCREEN_HEIGHT
+
+        block_hit = arcade.check_for_collision_with_list(self, window.solid_blocks)
+        for block in block_hit:
+            if self.left < block.right:
+                self.left = block.right
+            if self.right > block.left:
+                self.right = block.left
+            if self.top > block.bottom:
+                self.top = block.bottom
+            if self.bottom < block.top:
+                self.bottom = block.top
+
+
 class Game(arcade.Window):
-    def __init__(self,width,height,title):
+    def __init__(self, width, height, title):
         super().__init__(width, height, title)
-        self.back=arcade.load_texture("Blocks/BackgroundTile.png")
+        self.back = arcade.load_texture("Blocks/BackgroundTile.png")
 
         self.solid_blocks = arcade.SpriteList()
-        self.explodable_blocks =arcade.SpriteList()
+        self.explodable_blocks = arcade.SpriteList()
 
-        self.bomberman = player.Bomberman(constants.PLAYER_ONE_SPEED)
-        self.bomberman_two = player.Bomberman(constants.PLAYER_TWO_SPEED)
+        self.bomberman = Player(constants.PLAYER_ONE_SPEED)
+        self.bomberman_two = Player(constants.PLAYER_TWO_SPEED)
         self.bomberman_two.color = (0, 247, 234)
 
     def difference(self, coordinate, distance):
-        return coordinate*distance+distance/2
+        return coordinate * distance + distance / 2
 
     def setup(self):
         for y in range(constants.ROW_COUNT):
             for x in range(constants.COLUMN_COUNT):
-                if x%2==1 and y%2==1:
-                    solid_block=Solid_block()
+                if x % 2 == 1 and y % 2 == 1:
+                    solid_block = Solid_block()
                     solid_block.center_x = self.difference(x, constants.CELL_WIDTH)
                     solid_block.center_y = self.difference(y, constants.CELL_HEIGHT)
                     self.solid_blocks.append(solid_block)
-                elif random.randint(1,2)==1:
-                    if (not (x==0 and y<=2) and not (y==0 and x <=2)
-                            and not(x==constants.ROW_COUNT-1 and y>=constants.COLUMN_COUNT-3)
-                            and not (y==constants.COLUMN_COUNT-1 and x>=constants.ROW_COUNT-3)):
-                        explodable_block=ExplodableBlock()
-                        explodable_block.center_x = self.difference(x, constants.CELL_WIDTH)
-                        explodable_block.center_y = self.difference(y, constants.CELL_HEIGHT)
+                elif random.randint(1, 2) == 1:
+                    if (
+                        not (x == 0 and y <= 2)
+                        and not (y == 0 and x <= 2)
+                        and not (
+                            x == constants.ROW_COUNT - 1
+                            and y >= constants.COLUMN_COUNT - 3
+                        )
+                        and not (
+                            y == constants.COLUMN_COUNT - 1
+                            and x >= constants.ROW_COUNT - 3
+                        )
+                    ):
+                        explodable_block = ExplodableBlock()
+                        explodable_block.center_x = self.difference(
+                            x, constants.CELL_WIDTH
+                        )
+                        explodable_block.center_y = self.difference(
+                            y, constants.CELL_HEIGHT
+                        )
                         self.explodable_blocks.append(explodable_block)
 
-        x=constants.SCREEN_WIDTH/constants.COLUMN_COUNT-constants.CELL_WIDTH/2
-        y=constants.SCREEN_HEIGHT/constants.ROW_COUNT-constants.CELL_HEIGHT/2
-        self.bomberman.set_position(x,y)
+        x = constants.SCREEN_WIDTH / constants.COLUMN_COUNT - constants.CELL_WIDTH / 2
+        y = constants.SCREEN_HEIGHT / constants.ROW_COUNT - constants.CELL_HEIGHT / 2
+        self.bomberman.set_position(x, y)
 
-        x = constants.SCREEN_WIDTH-constants.ROW_COUNT*2
-        y = constants.SCREEN_HEIGHT-constants.CELL_HEIGHT+constants.ROW_COUNT*3
+        x = constants.SCREEN_WIDTH - constants.ROW_COUNT * 2
+        y = constants.SCREEN_HEIGHT - constants.CELL_HEIGHT + constants.ROW_COUNT * 3
         self.bomberman_two.set_position(x, y)
 
     def on_draw(self):
@@ -54,8 +97,10 @@ class Game(arcade.Window):
                 arcade.draw_texture_rectangle(
                     self.difference(x, constants.CELL_WIDTH),
                     self.difference(y, constants.CELL_HEIGHT),
-                    constants.CELL_WIDTH, constants.CELL_HEIGHT,
-                    self.back)
+                    constants.CELL_WIDTH,
+                    constants.CELL_HEIGHT,
+                    self.back,
+                )
         self.solid_blocks.draw()
         self.explodable_blocks.draw()
         self.bomberman.draw()
@@ -68,35 +113,44 @@ class Game(arcade.Window):
         self.bomberman_two.update()
 
     def on_key_press(self, key, modifiers):
-        if key==arcade.key.LEFT:
+        if key == arcade.key.LEFT:
             self.bomberman.to_left()
-        if key==arcade.key.RIGHT:
+        if key == arcade.key.RIGHT:
             self.bomberman.to_right()
-        if key==arcade.key.UP:
+        if key == arcade.key.UP:
             self.bomberman.to_up()
-        if key==arcade.key.DOWN:
+        if key == arcade.key.DOWN:
             self.bomberman.to_down()
         self.bomberman.costume_change()
 
-        if key==arcade.key.A:
+        if key == arcade.key.A:
             self.bomberman_two.to_left()
-        if key==arcade.key.D:
+        if key == arcade.key.D:
             self.bomberman_two.to_right()
-        if key==arcade.key.W:
+        if key == arcade.key.W:
             self.bomberman_two.to_up()
-        if key==arcade.key.S:
+        if key == arcade.key.S:
             self.bomberman_two.to_down()
         self.bomberman_two.costume_change()
 
     def on_key_release(self, key, modifiers):
-        if (key == arcade.key.LEFT or key == arcade.key.RIGHT or
-                key == arcade.key.UP or key == arcade.key.DOWN):
+        if (
+            key == arcade.key.LEFT
+            or key == arcade.key.RIGHT
+            or key == arcade.key.UP
+            or key == arcade.key.DOWN
+        ):
             self.bomberman.to_stop()
 
-        if (key == arcade.key.A or key == arcade.key.D or
-                key == arcade.key.W or key == arcade.key.S):
+        if (
+            key == arcade.key.A
+            or key == arcade.key.D
+            or key == arcade.key.W
+            or key == arcade.key.S
+        ):
             self.bomberman_two.to_stop()
 
-window=Game(constants.SCREEN_WIDTH,constants.SCREEN_HEIGHT,constants.SCREEN_TITLE)
+
+window = Game(constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT, constants.SCREEN_TITLE)
 window.setup()
 arcade.run()
