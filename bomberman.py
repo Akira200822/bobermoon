@@ -84,5 +84,3 @@ class Bomberman(animate.Animation):
             self.bottom = 0
         if self.top > constants.SCREEN_HEIGHT:
             self.top = constants.SCREEN_HEIGHT
-
-

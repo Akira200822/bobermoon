@@ -10,8 +10,9 @@ import bomba
 
 
 class Player(Bomberman):
-    def __init__(self, speed):
+    def __init__(self, speed, bomb_count):
         super().__init__(speed)
+        self.bomb_count = bomb_count
 
     def collisions(self, spritelist):
         block_hit = arcade.check_for_collision_with_list(self, spritelist)
@@ -25,14 +26,10 @@ class Player(Bomberman):
             if self.bottom < block.top and self.direction == 4:
                 self.bottom = block.top
 
-
     def update(self):
         super().update()
         self.collisions(window.explodable_blocks)
         self.collisions(window.solid_blocks)
-
-
-
 
 
 class Game(arcade.Window):
@@ -43,27 +40,32 @@ class Game(arcade.Window):
         self.solid_blocks = arcade.SpriteList()
         self.explodable_blocks = arcade.SpriteList()
 
-        self.bomberman = Player(constants.PLAYER_ONE_SPEED)
-        self.bomberman_two = Player(constants.PLAYER_TWO_SPEED)
+        self.bomberman = Player(
+            constants.PLAYER_ONE_SPEED, constants.PLAYER_ONE_BOMB_COUNT
+        )
+        self.bomberman_two = Player(
+            constants.PLAYER_TWO_SPEED, constants.PLAYER_TWO_BOMB_COUNT
+        )
         self.bomberman_two.color = (0, 247, 234)
 
-        self.bombs_player=arcade.SpriteList()
+        self.bombs_player = arcade.SpriteList()
+
+        self.explosions = arcade.SpriteList()
 
     def difference(self, coordinate, distance):
         return coordinate * distance + distance / 2
 
-    def justify_x(self,position_x):
+    def justify_x(self, position_x):
         for x in range(constants.COLUMN_COUNT):
-            cell_center_x= self.difference(x, constants.CELL_WIDTH)
-            if position_x - cell_center_x <= constants.CELL_WIDTH/2:
+            cell_center_x = self.difference(x, constants.CELL_WIDTH)
+            if position_x - cell_center_x <= constants.CELL_WIDTH / 2:
                 return cell_center_x
 
-    def justify_y(self,position_y):
+    def justify_y(self, position_y):
         for y in range(constants.ROW_COUNT):
             cell_center_y = self.difference(y, constants.CELL_HEIGHT)
-            if position_y - cell_center_y <= constants.CELL_HEIGHT/2:
+            if position_y - cell_center_y <= constants.CELL_HEIGHT / 2:
                 return cell_center_y
-
 
     def setup(self):
         for y in range(constants.ROW_COUNT):
@@ -119,6 +121,7 @@ class Game(arcade.Window):
         self.bomberman.draw()
         self.bomberman_two.draw()
         self.bombs_player.draw()
+        self.explosions.draw()
 
     def update(self, delta_time):
         self.bomberman.update_animation(delta_time)
@@ -127,6 +130,8 @@ class Game(arcade.Window):
         self.bomberman_two.update()
         self.bombs_player.update()
         self.bombs_player.update_animation(delta_time)
+        self.explosions.update()
+        self.explosions.update_animation()
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.LEFT:
@@ -150,10 +155,11 @@ class Game(arcade.Window):
         self.bomberman_two.costume_change()
 
         if key == arcade.key.SPACE:
-            bomb=bomba.Bomb()
-            bomb.center_x=self.justify_x(self.bomberman.center_x)
-            bomb.center_y=self.justify_y(self.bomberman.center_y)
-            self.bombs_player.append(bomb)
+            if len(self.bombs_player) < self.bomberman.bomb_count:
+                bomb = bomba.Bomb()
+                bomb.center_x = self.justify_x(self.bomberman.center_x)
+                bomb.center_y = self.justify_y(self.bomberman.center_y)
+                self.bombs_player.append(bomb)
 
     def on_key_release(self, key, modifiers):
         if (
