@@ -52,6 +52,19 @@ class Game(arcade.Window):
     def difference(self, coordinate, distance):
         return coordinate * distance + distance / 2
 
+    def justify_x(self,position_x):
+        for x in range(constants.COLUMN_COUNT):
+            cell_center_x= self.difference(x, constants.CELL_WIDTH)
+            if position_x - cell_center_x <= constants.CELL_WIDTH/2:
+                return cell_center_x
+
+    def justify_y(self,position_y):
+        for y in range(constants.ROW_COUNT):
+            cell_center_y = self.difference(y, constants.CELL_HEIGHT)
+            if position_y - cell_center_y <= constants.CELL_HEIGHT/2:
+                return cell_center_y
+
+
     def setup(self):
         for y in range(constants.ROW_COUNT):
             for x in range(constants.COLUMN_COUNT):
@@ -138,8 +151,8 @@ class Game(arcade.Window):
 
         if key == arcade.key.SPACE:
             bomb=bomba.Bomb()
-            bomb.center_x=self.bomberman.center_x
-            bomb.center_y=self.bomberman.center_y
+            bomb.center_x=self.justify_x(self.bomberman.center_x)
+            bomb.center_y=self.justify_y(self.bomberman.center_y)
             self.bombs_player.append(bomb)
 
     def on_key_release(self, key, modifiers):
