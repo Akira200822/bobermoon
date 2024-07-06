@@ -6,6 +6,7 @@ from solid_block import Solid_block
 from bomberman import Bomberman
 
 import constants
+import bomba
 
 
 class Player(Bomberman):
@@ -45,6 +46,8 @@ class Game(arcade.Window):
         self.bomberman = Player(constants.PLAYER_ONE_SPEED)
         self.bomberman_two = Player(constants.PLAYER_TWO_SPEED)
         self.bomberman_two.color = (0, 247, 234)
+
+        self.bombs_player=arcade.SpriteList()
 
     def difference(self, coordinate, distance):
         return coordinate * distance + distance / 2
@@ -102,12 +105,15 @@ class Game(arcade.Window):
         self.explodable_blocks.draw()
         self.bomberman.draw()
         self.bomberman_two.draw()
+        self.bombs_player.draw()
 
     def update(self, delta_time):
         self.bomberman.update_animation(delta_time)
         self.bomberman_two.update_animation(delta_time)
         self.bomberman.update()
         self.bomberman_two.update()
+        self.bombs_player.update()
+        self.bombs_player.update_animation(delta_time)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.LEFT:
@@ -129,6 +135,12 @@ class Game(arcade.Window):
         if key == arcade.key.S:
             self.bomberman_two.to_down()
         self.bomberman_two.costume_change()
+
+        if key == arcade.key.SPACE:
+            bomb=bomba.Bomb()
+            bomb.center_x=self.bomberman.center_x
+            bomb.center_y=self.bomberman.center_y
+            self.bombs_player.append(bomb)
 
     def on_key_release(self, key, modifiers):
         if (
