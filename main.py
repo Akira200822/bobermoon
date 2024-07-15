@@ -7,6 +7,8 @@ from bomberman import Bomberman
 
 import constants
 import bomba
+import time
+import explosion
 
 
 class Player(Bomberman):
@@ -14,22 +16,41 @@ class Player(Bomberman):
         super().__init__(speed)
         self.bomb_count = bomb_count
 
-    def collisions(self, spritelist):
-        block_hit = arcade.check_for_collision_with_list(self, spritelist)
-        for block in block_hit:
-            if self.left < block.right and self.direction == 1:
-                self.left = block.right
-            if self.right > block.left and self.direction == 2:
-                self.right = block.left
-            if self.top > block.bottom and self.direction == 3:
-                self.top = block.bottom
-            if self.bottom < block.top and self.direction == 4:
-                self.bottom = block.top
-
     def update(self):
         super().update()
         self.collisions(window.explodable_blocks)
         self.collisions(window.solid_blocks)
+
+class Bomd(bomba.Bomba):
+    def update(self):
+        print("bomb")
+        if time.time()-self.bomb_timer>3:
+
+            exp=explosion.Explosion()
+            exp.center_x=self.center_x
+            exp.center_y=self.center_y
+            window.explosions.append(exp)
+            self.kill()
+
+            exp1=explosion.Explosion()
+            exp1.center_x=exp.center_x - constants.CELL_WIDTH
+            exp1.center_y=exp.center_y
+            window.explosions.append(exp1)
+
+            exp2 = explosion.Explosion()
+            exp2.center_x = exp.center_x - constants.CELL_WIDTH
+            exp2.center_y = exp.center_y
+            window.explosions.append(exp2)
+
+            exp3 = explosion.Explosion()
+            exp3.center_x = exp.center_x
+            exp3.center_y = exp.center_y - constants.CELL_HEIGHT
+            window.explosions.append(exp3)
+
+            exp4 = explosion.Explosion()
+            exp4.center_x = exp.center_x
+            exp4.center_y = exp.center_y + constants.CELL_HEIGHT
+            window.explosions.append(exp4)
 
 
 class Game(arcade.Window):
@@ -123,6 +144,7 @@ class Game(arcade.Window):
         self.bombs_player.draw()
         self.explosions.draw()
 
+
     def update(self, delta_time):
         self.bomberman.update_animation(delta_time)
         self.bomberman_two.update_animation(delta_time)
@@ -156,7 +178,7 @@ class Game(arcade.Window):
 
         if key == arcade.key.SPACE:
             if len(self.bombs_player) < self.bomberman.bomb_count:
-                bomb = bomba.Bomb()
+                bomb = bomba.Bomba()
                 bomb.center_x = self.justify_x(self.bomberman.center_x)
                 bomb.center_y = self.justify_y(self.bomberman.center_y)
                 self.bombs_player.append(bomb)

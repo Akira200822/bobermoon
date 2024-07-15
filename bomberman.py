@@ -72,6 +72,18 @@ class Bomberman(animate.Animation):
         if self.direction == 4:
             self.textures = self.walk_down_frames
 
+    def collisions(self, spritelist):
+        block_hit = arcade.check_for_collision_with_list(self, spritelist)
+        for block in block_hit:
+            if self.left < block.right and self.direction == 1:
+                self.left = block.right
+            if self.right > block.left and self.direction == 2:
+                self.right = block.left
+            if self.top > block.bottom and self.direction == 3:
+                self.top = block.bottom
+            if self.bottom < block.top and self.direction == 4:
+                self.bottom = block.top
+
     def update(self):
         self.center_x += self.change_x
         self.center_y += self.change_y
